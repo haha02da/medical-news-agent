@@ -6,7 +6,7 @@ function getClient() {
     apiKey: process.env.OPENROUTER_API_KEY ?? "placeholder",
     defaultHeaders: {
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "https://medical-news.vercel.app",
-      "X-Title": "질병 정보 모니터",
+      "X-Title": "Disease News Monitor",
     },
   });
 }

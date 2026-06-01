@@ -25,17 +25,41 @@ export type CollectionLog = {
   error_msg: string | null;
 };
 
+export type Database = {
+  public: {
+    Tables: {
+      news_articles: {
+        Row: NewsArticle;
+        Insert: Omit<NewsArticle, "id" | "collected_at">;
+        Update: Partial<NewsArticle>;
+        Relationships: [];
+      };
+      collection_logs: {
+        Row: CollectionLog;
+        Insert: {
+          status: "running" | "success" | "error";
+          finished_at?: string | null;
+          articles_new?: number;
+          articles_summarized?: number;
+          error_msg?: string | null;
+        };
+        Update: Partial<CollectionLog>;
+        Relationships: [];
+      };
+    };
+    Views: {
+      latest_news: {
+        Row: NewsArticle;
+        Relationships: [];
+      };
+    };
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient<{
-  public: {
-    Tables: {
-      news_articles: { Row: NewsArticle; Insert: Omit<NewsArticle, "id" | "collected_at">; Update: Partial<NewsArticle> };
-      collection_logs: { Row: CollectionLog; Insert: Omit<CollectionLog, "id" | "started_at">; Update: Partial<CollectionLog> };
-    };
-    Views: {
-      latest_news: { Row: NewsArticle };
-    };
-  };
-}>(supabaseUrl, supabaseKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey);

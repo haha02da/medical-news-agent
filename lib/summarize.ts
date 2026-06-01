@@ -1,18 +1,21 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "https://medical-news.vercel.app",
-    "X-Title": "질병 정보 모니터",
-  },
-});
+function getClient() {
+  return new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY ?? "placeholder",
+    defaultHeaders: {
+      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "https://medical-news.vercel.app",
+      "X-Title": "질병 정보 모니터",
+    },
+  });
+}
 
 export async function summarizeArticle(
   title: string,
   description: string
 ): Promise<string> {
+  const client = getClient();
   const response = await client.chat.completions.create({
     model: "openrouter/auto",
     messages: [

@@ -20,13 +20,13 @@ export async function GET(request: Request) {
   const logId = log?.id;
 
   try {
-    const items = await fetchAllFeeds(10);
-
     let newCount = 0;
     let summarizedCount = 0;
 
+    // 1단계: RSS 수집 및 신규 기사 저장
+    const items = await fetchAllFeeds(10);
+
     for (const item of items) {
-      // 중복 체크 후 삽입
       const { data: existing } = await supabase
         .from("news_articles")
         .select("id, summary_ko")
@@ -34,7 +34,6 @@ export async function GET(request: Request) {
         .single();
 
       if (!existing) {
-        // 새 기사 — 요약 생성 후 저장
         let summary_ko: string | null = null;
         try {
           if (item.title || item.description) {
@@ -42,7 +41,7 @@ export async function GET(request: Request) {
             summarizedCount++;
           }
         } catch {
-          // 요약 실패해도 기사는 저장
+          // 요약 실패해도 저장
         }
 
         await supabase.from("news_articles").insert({
@@ -58,18 +57,30 @@ export async function GET(request: Request) {
           summarized_at: summary_ko ? new Date().toISOString() : null,
         });
         newCount++;
-      } else if (existing && !existing.summary_ko) {
-        // 기존 기사인데 요약 없으면 요약만 추가
-        try {
-          const summary_ko = await summarizeArticle(item.title, item.description ?? "");
-          await supabase
-            .from("news_articles")
-            .update({ summary_ko, summarized_at: new Date().toISOString() })
-            .eq("article_id", item.id);
-          summarizedCount++;
-        } catch {
-          // ignore
-        }
+      }
+    }
+
+    // 2단계: DB에서 미요약 기사 조회 후 요약 (최대 30건/회)
+    const { data: pending } = await supabase
+      .from("news_articles")
+      .select("id, article_id, title, description")
+      .is("summary_ko", null)
+      .order("collected_at", { ascending: true })
+      .limit(30);
+
+    for (const article of pending ?? []) {
+      try {
+        const summary_ko = await summarizeArticle(
+          article.title,
+          article.description ?? ""
+        );
+        await supabase
+          .from("news_articles")
+          .update({ summary_ko, summarized_at: new Date().toISOString() })
+          .eq("id", article.id);
+        summarizedCount++;
+      } catch {
+        // 개별 실패는 무시하고 계속
       }
     }
 

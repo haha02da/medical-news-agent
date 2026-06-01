@@ -7,10 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 const SOURCES = [
-  { name: "CIDRAP",        color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  { name: "WHO",           color: "bg-green-500/10 text-green-400 border-green-500/20" },
+  { name: "CDC",           color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  { name: "질병청",         color: "bg-teal-500/10 text-teal-400 border-teal-500/20" },
+  { name: "NIH",           color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+  { name: "CIDRAP",        color: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" },
   { name: "Outbreak News", color: "bg-red-500/10 text-red-400 border-red-500/20" },
-  { name: "STAT News",     color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+  { name: "MedicalXpress", color: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
+  { name: "STAT News",     color: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
   { name: "MedPage",       color: "bg-green-500/10 text-green-400 border-green-500/20" },
+  { name: "Google Health", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
 ];
 
 export default function Home() {

@@ -10,7 +10,7 @@ export type NewsArticle = {
   pub_date: string | null;
   source: string;
   source_full: string;
-  source_color: "blue" | "red" | "purple" | "green";
+  source_color: "blue" | "red" | "purple" | "green" | "orange" | "teal" | "indigo" | "pink";
   collected_at: string;
   summarized_at: string | null;
 };

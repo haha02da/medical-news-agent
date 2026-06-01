@@ -4,22 +4,14 @@ import { Separator } from "@/components/ui/separator";
 import type { NewsArticle } from "@/lib/supabase";
 
 const SOURCE_STYLES: Record<string, { badge: string; dot: string }> = {
-  blue: {
-    badge: "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/15",
-    dot: "bg-blue-400",
-  },
-  red: {
-    badge: "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/15",
-    dot: "bg-red-400",
-  },
-  purple: {
-    badge: "bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/15",
-    dot: "bg-purple-400",
-  },
-  green: {
-    badge: "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/15",
-    dot: "bg-green-400",
-  },
+  blue:   { badge: "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/15",     dot: "bg-blue-400" },
+  red:    { badge: "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/15",         dot: "bg-red-400" },
+  purple: { badge: "bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/15", dot: "bg-purple-400" },
+  green:  { badge: "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/15", dot: "bg-green-400" },
+  orange: { badge: "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/15", dot: "bg-orange-400" },
+  teal:   { badge: "bg-teal-500/10 text-teal-400 border-teal-500/20 hover:bg-teal-500/15",     dot: "bg-teal-400" },
+  indigo: { badge: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 hover:bg-indigo-500/15", dot: "bg-indigo-400" },
+  pink:   { badge: "bg-pink-500/10 text-pink-400 border-pink-500/20 hover:bg-pink-500/15",     dot: "bg-pink-400" },
 };
 
 function formatDate(pubDate: string | null) {

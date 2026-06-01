@@ -1,65 +1,85 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import { NewsGrid } from "@/components/NewsGrid";
+import { NewsSkeleton } from "@/components/NewsSkeleton";
+import { RefreshButton } from "@/components/RefreshButton";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/lib/supabase";
 
-export default function Home() {
+const SOURCES = [
+  { name: "CIDRAP",        color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  { name: "Outbreak News", color: "bg-red-500/10 text-red-400 border-red-500/20" },
+  { name: "STAT News",     color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+  { name: "MedPage",       color: "bg-green-500/10 text-green-400 border-green-500/20" },
+];
+
+async function getLastCollectionInfo() {
+  const { data } = await supabase
+    .from("collection_logs")
+    .select("finished_at, status, articles_new, articles_summarized")
+    .eq("status", "success")
+    .order("finished_at", { ascending: false })
+    .limit(1)
+    .single();
+  return data;
+}
+
+export default async function Home() {
+  const lastCollection = await getLastCollectionInfo();
+  const lastRun = lastCollection?.finished_at
+    ? new Intl.DateTimeFormat("ko-KR", {
+        month: "short", day: "numeric",
+        hour: "2-digit", minute: "2-digit",
+      }).format(new Date(lastCollection.finished_at))
+    : null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="mb-8 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-2xl font-bold tracking-tight">
+                  질병 정보 모니터
+                </h1>
+                <Badge variant="secondary" className="text-[10px] px-1.5">
+                  AI 요약
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                주요 보건 기관의 최신 질병 발생 정보를 AI가 한국어로 요약합니다
+              </p>
+              {lastRun && (
+                <p className="text-xs text-muted-foreground/60">
+                  마지막 수집: {lastRun}
+                  {lastCollection?.articles_new
+                    ? ` · 신규 ${lastCollection.articles_new}건`
+                    : ""}
+                </p>
+              )}
+            </div>
+            <RefreshButton />
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {SOURCES.map((source) => (
+              <span
+                key={source.name}
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${source.color}`}
+              >
+                {source.name}
+              </span>
+            ))}
+          </div>
+
+          <Separator />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        <Suspense fallback={<NewsSkeleton />}>
+          <NewsGrid />
+        </Suspense>
+      </div>
+    </main>
   );
 }
